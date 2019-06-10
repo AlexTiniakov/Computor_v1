@@ -30,33 +30,35 @@ def count(nbs, eqt):
             exit()
         elif nbs[2] == 0:
             print('The solution is:')
-            print(-nbs[0] / nbs[1])
+            print(-float(nbs[0]) / float(nbs[1]))
             exit()
         D = nbs[1] * nbs[1] - 4 * nbs[2] * nbs[0]
         if D == 0:
             print('Discriminant is equal to 0, so the solution is:')
-            print(-nbs[1] / 2 / nbs[2])
+            print(-float(nbs[1]) / 2 / float(nbs[2]))
         elif D > 0:
             print('Discriminant is strictly positive, the two solutions are:')
-            print((-nbs[1] + math.sqrt(D)) / 2 / nbs[2])
-            print((-nbs[1] - math.sqrt(D)) / 2 / nbs[2])
+            print((-float(nbs[1]) + math.sqrt(D)) / 2 / float(nbs[2]))
+            print((-float(nbs[1]) - math.sqrt(D)) / 2 / float(nbs[2]))
         elif D < 0:
             print('Discriminant is strictly negative, the two solutions are:')
-            print(str(-nbs[1] / 2 / nbs[2]) +' + i * ' + str(math.sqrt(-D) / 2 / nbs[2]))
-            print(str(-nbs[1] / 2 / nbs[2]) +' - i * ' + str(math.sqrt(-D) / 2 / nbs[2]))
+            print(str(-float(nbs[1]) / 2 / float(nbs[2])) +' + i * ' + str(math.sqrt(-D) / 2 / float(nbs[2])))
+            print(str(-float(nbs[1]) / 2 / float(nbs[2])) +' - i * ' + str(math.sqrt(-D) / 2 / float(nbs[2])))
 
 
             
 def parse2(nbs, eqt):
     nbs1 = []
     eqt1 = []
+    while len(nbs) > len(eqt):
+        eqt.append(0)
     for e in range(max(eqt)+1):
         eqt1.append(e)
         nbs1.append(0)
         for i in range(len(eqt)):
             if e == eqt[i]:
                 nbs1[e] += nbs[i]
-    while nbs1[-1] == 0:
+    while max(eqt) > 0 and len(nbs1) > 1 and nbs1[-1] == 0:
         nbs1.pop()
         eqt1.pop()
     count(nbs1, eqt1)
@@ -64,7 +66,12 @@ def parse2(nbs, eqt):
 def parse(inp):
     nbs = []
     eqt = []
-    index_of_eqw = inp.index("=")
+    index_of_eqw = -1
+    try:
+        index_of_eqw = inp.index("=")
+    except:
+        print('Wrong format of data!')
+        exit()
     for i in range(len(inp)):
         if (i + 4) % 4 == 0:
             try:
@@ -78,14 +85,21 @@ def parse(inp):
             if (i > 0 and inp[i - 1] == '-' and i < index_of_eqw) or \
                 (i > 0 and (inp[i - 1] == '+' or inp[i - 1] == '=') and i > index_of_eqw):
                 nbs[len(nbs) - 1] *= -1
-        elif (i + 2) % 4 == 0:
-           eqt.append(int(inp[i][2]))
+        if (i + 2) % 4 == 0:
+            if len(inp[i]) == 3:
+                eqt.append(int(inp[i][2]))
+            elif len(inp[i]) == 1 and inp[i] == 'X':
+                eqt.append(1)
+            else:
+                print('Wrong format of data: ' + inp[i])
+                exit()
     parse2(nbs, eqt)
 
 
 
 def main():
     inp = 0
+    new_inp = []
     if len(sys.argv) > 1:
         inp = sys.argv[1]
     else:
@@ -95,9 +109,24 @@ def main():
             except:
                 pass
     inp = inp.split(' ')
-    parse(inp)
+    for i in inp:
+        if len(i) > 0 and i[0] == 'X' and ((len(new_inp) > 0 and new_inp[-1] != '*') or (len(new_inp) == 0)):
+            new_inp.append(1)
+            new_inp.append('*')
+        if len(i) > 0 and (i[0] == '+' or i[0] == '-' or i[0] == '='):
+            try:
+                float(new_inp[-1])
+                new_inp.append('*')
+                new_inp.append('X^0')
+            except:
+                pass
+        new_inp.append(i)
+    parse(new_inp)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        pass
     
     
